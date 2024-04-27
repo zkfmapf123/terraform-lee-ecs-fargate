@@ -35,17 +35,18 @@ resource "aws_security_group" "ecs_sg" {
   vpc_id      = lookup(var.vpc_attr, "vpc_id")
 
   ingress {
-    from_port       = lookup(var.ecs_attr, "port")
-    to_port         = lookup(var.ecs_attr, "port")
-    protocol        = "tcp"
-    security_groups = aws_security_group.alb_sg.id
+    from_port = lookup(var.ecs_attr, "port")
+    to_port   = lookup(var.ecs_attr, "port")
+    protocol  = "tcp"
+    # security_groups = [aws_security_group.alb_sg.id]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
     from_port       = 0
     to_port         = 0
     protocol        = "-1"
-    security_groups = aws_security_group.alb_sg.id
+    security_groups = [aws_security_group.alb_sg.id]
   }
 
   tags = {

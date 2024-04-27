@@ -1,27 +1,19 @@
-################################## Common ##################################
-variable "prefix" {
-  type = string
-}
+module "ecs" {
+  source = "../../"
 
-################################## Network ##################################
-variable "vpc_attr" {
+  prefix = "donggyu"
 
-  default = {
-    vpc_id         = ""
-    alb_subnet_ids = [""]
+  vpc_attr = {
+    vpc_id         = module.vpc.vpc.vpc_id
+    alb_subnet_ids = values(module.vpc.vpc.webserver_subnets)
   }
-}
 
-################################## load balancer ##################################
-variable "lb_attr" {
-  default = {
+  lb_attr = {
     internal             = false
     deregistration_delay = 60
   }
-}
 
-variable "lb_health" {
-  default = {
+  lb_health = {
     path                = "/health"
     protocol            = "HTTP"
     interval            = 30
@@ -29,36 +21,26 @@ variable "lb_health" {
     unhealthy_threshold = 2
     healthy_threshold   = 2
   }
-}
 
-################################## Container ##################################
-variable "is_create_ecr" {
-  default = {
-    is_enable       = true
-    exists_ecr_name = ""
-  }
-}
-
-variable "is_create_cluster" {
-  default = {
+  is_create_cluster = {
     is_enable           = true
     exists_cluster_name = ""
   }
-}
 
-variable "ecs_attr" {
+  is_create_ecr = {
+    is_enable       = false
+    exists_ecr_name = ""
+  }
 
-  default = {
+  ecs_attr = {
     port          = 3000
     cpu           = 256
     memory        = 512
     desired_count = 1
-    subnet_ids    = []
+    subnet_ids    = values(module.vpc.vpc.was_subnets)
   }
-}
 
-variable "task_def" {
-  default = {
+  task_def = [{
     name      = "ecs-server-container"
     image     = "zkfmapf123/donggyu-friends:2.0"
     cpu       = 256
@@ -87,5 +69,9 @@ variable "task_def" {
         awslogs-stream-prefix = "ecs"
       }
     }
-  }
+  }]
+}
+
+output "ecs" {
+  value = module.ecs
 }
