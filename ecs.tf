@@ -51,7 +51,7 @@ resource "aws_ecs_service" "service" {
   enable_execute_command = true
 
   network_configuration {
-    assign_public_ip = false
+    assign_public_ip = lookup(var.ecs_attr, "is_public")
     subnets          = lookup(var.ecs_attr, "subnet_ids")
     security_groups  = [aws_security_group.ecs_sg.id]
   }

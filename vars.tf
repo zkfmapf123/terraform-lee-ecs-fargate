@@ -53,6 +53,7 @@ variable "ecs_attr" {
     cpu           = 256
     memory        = 512
     desired_count = 1
+    is_public     = false
     subnet_ids    = []
   }
 }
