@@ -1,27 +1,23 @@
-################################## Common ##################################
-variable "prefix" {
-  type = string
-}
+############################################################ BootStrap ############################################################
 
-################################## Network ##################################
-variable "vpc_attr" {
 
-  default = {
-    vpc_id         = ""
-    alb_subnet_ids = [""]
+
+module "ecs" {
+  source = "../../"
+
+  prefix = "donggyu"
+
+  vpc_attr = {
+    vpc_id         = module.vpc.vpc.vpc_id
+    alb_subnet_ids = values(module.vpc.vpc.webserver_subnets)
   }
-}
 
-################################## load balancer ##################################
-variable "lb_attr" {
-  default = {
+  lb_attr = {
     internal             = false
     deregistration_delay = 60
   }
-}
 
-variable "lb_health" {
-  default = {
+  lb_health = {
     path                = "/health"
     protocol            = "HTTP"
     interval            = 30
@@ -29,46 +25,27 @@ variable "lb_health" {
     unhealthy_threshold = 2
     healthy_threshold   = 2
   }
-}
 
-################################## Container ##################################
-variable "is_create_ecr" {
-
-  description = "기재된 ECR의 이미지 사용여부 (is_enable_ecr_repostiry), 활성화한다면 -> ECR에 이미지를 생성해야 함..."
-
-  default = {
-    is_enable                = true
-    is_enable_ecr_repository = false
-    exists_ecr_name          = ""
-  }
-}
-
-variable "is_create_cluster" {
-  default = {
+  is_create_cluster = {
     is_enable           = true
     exists_cluster_name = ""
   }
-}
 
-variable "ecs_attr" {
+  is_create_ecr = {
+    is_enable       = false
+    exists_ecr_name = ""
+  }
 
-  default = {
+  ecs_attr = {
     port          = 3000
     cpu           = 256
     memory        = 512
     desired_count = 1
     is_public     = false
-    subnet_ids    = []
+    subnet_ids    = values(module.vpc.vpc.was_subnets)
   }
-}
 
-variable "ecs_extends_policy" {
-  description = "ecs 실행역할에 추가될 정책"
-  default     = {}
-}
-
-variable "task_def" {
-  default = {
+  task_def = [{
     name      = "ecs-server-container"
     image     = "zkfmapf123/donggyu-friends:2.0"
     cpu       = 256
@@ -97,5 +74,9 @@ variable "task_def" {
         awslogs-stream-prefix = "ecs"
       }
     }
-  }
+  }]
+}
+
+output "ecs" {
+  value = module.ecs
 }
