@@ -20,7 +20,7 @@ resource "aws_iam_role" "role" {
 resource "aws_iam_policy" "policy" {
   name = "${var.prefix}-svc-execution-policy"
 
-  policy = jsonencode(merge({
+  policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
@@ -64,9 +64,10 @@ resource "aws_iam_policy" "policy" {
           "ssmmessages:OpenControlChannel",
           "ssmmessages:OpenDataChannel"
         ]
-      }
+      },
+      var.ecs_extends_policy
     ]
-  }, var.ecs_extends_policy))
+  })
 }
 
 resource "aws_iam_role_policy_attachment" "role_attach" {

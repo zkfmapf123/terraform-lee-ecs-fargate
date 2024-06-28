@@ -45,6 +45,14 @@ module "ecs" {
     subnet_ids    = values(module.vpc.vpc.was_subnets)
   }
 
+  ecs_extends_policy = {
+    "Effect" : "Allow",
+    "Resource" : "*",
+    "Action" : [
+      "sqs:*"
+    ]
+  }
+
   task_def = [{
     name      = "ecs-server-container"
     image     = "zkfmapf123/donggyu-friends:2.0"
